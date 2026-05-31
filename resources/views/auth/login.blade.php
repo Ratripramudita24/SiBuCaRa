@@ -24,7 +24,7 @@
         @csrf
 
         <div class="mb-4">
-            <x-input-label Akses for="email" :value="__('Alamat Email')"
+            <x-input-label for="email" :value="__('Alamat Email')"
                 class="text-gray-700 font-medium mb-1 block text-sm" />
             <div class="relative mt-1">
                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-gray-400">
@@ -35,8 +35,8 @@
                     </svg>
                 </div>
                 <input id="email"
-                    class="block w-full ps-10 pe-3 py-2 bg-transparent border border-gray-600 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#00713d] focus:border-[#00713d]"
-                    type="email" name="email" :value="old('email')" placeholder="nama@email.com" required autofocus
+                    class="block w-full ps-10 pe-3 py-2 bg-emerald-50/20 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#00713d] focus:border-[#00713d]"
+                    type="email" name="email" value="{{ old('email') }}" placeholder="nama@email.com" required autofocus
                     autocomplete="username" />
             </div>
             <x-input-error :messages="$errors->get('email')" class="mt-1" />
@@ -61,7 +61,7 @@
                     </svg>
                 </div>
                 <input id="password"
-                    class="block w-full ps-10 pe-10 py-2 bg-transparent border border-gray-600 rounded-lg text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#00713d] focus:border-[#00713d]"
+                    class="block w-full ps-10 pe-10 py-2 bg-emerald-50/20 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#00713d] focus:border-[#00713d]"
                     type="password" name="password" placeholder="••••••••" required autocomplete="current-password" />
                 <div
                     class="absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 cursor-pointer hover:text-gray-600">

@@ -15,11 +15,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Seed varietas terlebih dahulu
+        $this->call(VarietySeeder::class);
+
+        // Create demo users with different roles
+        User::factory()->create([
+            'name' => 'Pemilik Kebun',
+            'email' => 'owner@example.com',
+            'role' => 'owner',
+        ]);
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Pekerja Kebun',
+            'email' => 'worker@example.com',
+            'role' => 'worker',
+            'created_by' => 1, // Created by owner
+        ]);
+
+        User::factory()->create([
+            'name' => 'Penyuluh',
+            'email' => 'penyuluh@example.com',
+            'role' => 'penyuluh',
         ]);
     }
 }

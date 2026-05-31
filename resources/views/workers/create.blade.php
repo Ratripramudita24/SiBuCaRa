@@ -1,0 +1,48 @@
+<x-app-layout>
+    <div class="py-6 px-8 max-w-2xl mx-auto space-y-6">
+        <div>
+            <a href="{{ route('workers.index') }}" class="text-sm text-gray-500 hover:text-gray-700">&lt;- Kembali</a>
+            <h2 class="mt-3 text-2xl font-bold text-[#0d1b2a]">Buat Akun Worker</h2>
+            <p class="text-sm text-gray-500">Worker login memakai email dan password yang diberikan owner.</p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <form action="{{ route('workers.store') }}" method="POST" class="space-y-5">
+                @csrf
+
+                <div>
+                    <label for="name" class="block text-sm font-semibold text-gray-700 mb-1">Nama Pekerja</label>
+                    <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="Contoh: Budi" class="w-full rounded-lg border-gray-200 text-sm focus:border-[#00713d] focus:ring-[#00713d]" required>
+                    <x-input-error :messages="$errors->get('name')" class="mt-1" />
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-semibold text-gray-700 mb-1">Email / Username Login</label>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="worker@example.com" class="w-full rounded-lg border-gray-200 text-sm focus:border-[#00713d] focus:ring-[#00713d]" required>
+                    <x-input-error :messages="$errors->get('email')" class="mt-1" />
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="password" class="block text-sm font-semibold text-gray-700 mb-1">Password Awal</label>
+                        <input type="password" id="password" name="password" class="w-full rounded-lg border-gray-200 text-sm focus:border-[#00713d] focus:ring-[#00713d]" required>
+                        <x-input-error :messages="$errors->get('password')" class="mt-1" />
+                    </div>
+                    <div>
+                        <label for="password_confirmation" class="block text-sm font-semibold text-gray-700 mb-1">Konfirmasi Password</label>
+                        <input type="password" id="password_confirmation" name="password_confirmation" class="w-full rounded-lg border-gray-200 text-sm focus:border-[#00713d] focus:ring-[#00713d]" required>
+                    </div>
+                </div>
+
+                <div class="rounded-lg border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-800">
+                    Setelah worker dibuat, aktivitas otomatis yang belum memiliki worker akan ditugaskan ke akun ini.
+                </div>
+
+                <div class="flex gap-3 pt-4 border-t border-gray-100">
+                    <button type="submit" class="flex-1 rounded-lg bg-[#00713d] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#005c32]">Buat Worker</button>
+                    <a href="{{ route('workers.index') }}" class="flex-1 rounded-lg border border-gray-200 px-6 py-2.5 text-center text-sm font-semibold text-gray-700 hover:bg-gray-50">Batal</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</x-app-layout>

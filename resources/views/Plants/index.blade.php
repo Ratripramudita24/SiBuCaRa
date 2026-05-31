@@ -1,111 +1,139 @@
 <x-app-layout>
-    <div class="py-6 px-8 bg-[#f8fcf9] min-h-screen space-y-6 max-w-5xl mx-auto">
+    <div class="py-8 px-8 max-w-6xl mx-auto space-y-6">
+        @php
+            $plantCount = $plants->count();
+            $activityCount = $plants->sum(fn ($plant) => $plant->activities->count());
+            $doneCount = $plants->sum(fn ($plant) => $plant->activities->where('status', 'selesai')->count());
+            $overallProgress = $activityCount > 0 ? round(($doneCount / $activityCount) * 100) : 0;
+        @endphp
 
-        <div class="flex items-center gap-2 text-sm font-medium text-gray-500">
-            <button onclick="window.history.back()" class="hover:text-gray-800 flex items-center gap-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                Input Tanggal Penanaman
-            </button>
-        </div>
-
-        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-2xs flex justify-between items-center gap-6">
-            <div class="space-y-2">
-                <h3 class="text-xl font-bold text-[#00713d] tracking-tight">Automasi Jadwal Budidaya</h3>
-                <p class="text-xs text-gray-500 leading-relaxed max-w-2xl">
-                    Masukkan data detail penanaman Anda di bawah ini. Sistem kami akan secara otomatis menghasilkan kalender pemeliharaan lengkap mulai dari penyemaian hingga masa panen berdasarkan varietas yang dipilih.
-                </p>
-            </div>
-            <div class="w-16 h-16 bg-gray-50 text-gray-300 rounded-2xl flex items-center justify-center flex-shrink-0 border border-gray-100">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M3 12h1m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M14 12a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="bg-gray-50/70 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                <h4 class="text-sm font-bold text-gray-800 flex items-center gap-2">
-                    <svg class="w-4 h-4 text-[#00713d]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    Form Detail Penanaman
-                </h4>
-                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider">Wajib Diisi</span>
-            </div>
-
-            <form action="{{ route('plants.store') }}" method="POST" class="p-6 space-y-6">
-                @csrf
-
+        <div class="rounded-2xl border border-emerald-100 bg-white/85 p-6 shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1.5">Nama Cabai</label>
-                    <input type="text" name="name" placeholder="Masukkan Nama Cabai (Contoh: Cabai Rawit 1)" required
-                           class="w-full text-sm rounded-lg bg-gray-50/50 border-gray-200 focus:ring-1 focus:ring-[#00713d] focus:border-[#00713d] py-2.5 px-4">
+                    <p class="text-xs font-black uppercase tracking-[0.2em] text-[#00713d]">Data Tanaman</p>
+                    <h2 class="mt-2 text-3xl font-black text-[#0d1b2a]">Daftar Tanaman</h2>
+                    <p class="mt-1 text-sm text-gray-500">Kelola tanaman cabai rawit, lokasi lahan, dan progres jadwal budidaya.</p>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5">Tanggal Penanaman Utama (Seedling)</label>
-                        <div class="relative">
-                            <input type="date" name="start_date" required
-                                   class="w-full text-sm rounded-lg bg-gray-50/50 border-gray-200 focus:ring-1 focus:ring-[#00713d] focus:border-[#00713d] py-2.5 px-4">
-                        </div>
-                        <span class="text-[10px] text-gray-400 mt-1.5 block italic">Tanggal saat benih pertama kali masuk ke media semai.</span>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5">Estimasi Luas Lahan (m²) / Lokasi Lahan</label>
-                        <input type="text" name="location" placeholder="Contoh: Sawah Barat / Blok B"
-                               class="w-full text-sm rounded-lg bg-gray-50/50 border-gray-200 focus:ring-1 focus:ring-[#00713d] focus:border-[#00713d] py-2.5 px-4">
-                    </div>
-                </div>
-
-                <div class="p-5 rounded-xl border border-gray-100 bg-gray-50/40 space-y-4">
-                    <div class="flex justify-between items-center text-xs font-bold">
-                        <span class="text-gray-700">Alur Jadwal Otomatis</span>
-                        <span class="text-[#00713d]">Estimasi Panen: +110 HST</span>
-                    </div>
-
-                    <div class="relative pt-2">
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div class="bg-[#00713d] h-2 rounded-full w-[20%]"></div>
-                        </div>
-                        <div class="flex justify-between text-[10px] font-bold text-gray-400 mt-3 uppercase tracking-wider">
-                            <span class="text-[#00713d]">Semai</span>
-                            <span>Tanam</span>
-                            <span>Vegetatif</span>
-                            <span>Panen</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    <button type="button" onclick="window.history.back()" class="px-6 py-2.5 border border-gray-200 text-sm font-semibold rounded-lg text-gray-700 hover:bg-gray-50 transition">
-                        Batalkan
-                    </button>
-                    <button type="submit" class="px-6 py-2.5 bg-[#00713d] hover:bg-[#005c32] text-white text-sm font-semibold rounded-lg shadow-sm transition flex items-center gap-2">
-                        <span>✨ Buat jadwal</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 items-center">
-            <div class="md:col-span-2 space-y-3">
-                <h4 class="text-sm font-bold text-gray-900">Mengapa data ini penting?</h4>
-                <p class="text-xs text-gray-500 leading-relaxed">
-                    Akurasi tanggal penanaman memungkinkan SiBuCaRa untuk menyinkronkan data cuaca lokal dengan fase kritis tanaman Anda. Kami akan memberikan notifikasi pemupukan dan pencegahan hama tepat pada waktunya.
-                </p>
-                <ul class="text-xs font-semibold text-gray-700 space-y-1.5">
-                    <li class="flex items-center gap-2 text-[#00713d]">
-                        ✓ Kalkulasi kebutuhan pupuk otomatis
-                    </li>
-                    <li class="flex items-center gap-2 text-[#00713d]">
-                        ✓ Pengaturan logistik tenaga kerja panen
-                    </li>
-                </ul>
-            </div>
-
-            <div class="md:col-span-1 rounded-xl overflow-hidden shadow-md border border-gray-100 h-36">
-                <img src="https://images.unsplash.com/photo-1592417817098-8f3d6eb18865?q=80&w=600&auto=format&fit=crop"
-                     alt="Kebun Cabai" class="w-full h-full object-cover">
+                <a href="{{ route('plants.create') }}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#00713d] px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#005c32]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Tambah Tanaman
+                </a>
             </div>
         </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
+                <p class="text-xs font-black uppercase tracking-wide text-gray-500">Total Tanaman</p>
+                <p class="mt-3 text-3xl font-black text-[#0d1b2a]">{{ $plantCount }}</p>
+            </div>
+            <div class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
+                <p class="text-xs font-black uppercase tracking-wide text-gray-500">Total Aktivitas</p>
+                <p class="mt-3 text-3xl font-black text-[#0d1b2a]">{{ $activityCount }}</p>
+            </div>
+            <div class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
+                <p class="text-xs font-black uppercase tracking-wide text-[#00713d]">Progres Keseluruhan</p>
+                <p class="mt-3 text-3xl font-black text-[#00713d]">{{ $overallProgress }}%</p>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-5">
+                <input type="text" id="search" placeholder="Cari nama tanaman, lokasi..." class="w-full lg:w-72 rounded-xl border-gray-200 px-3 py-2 text-sm focus:border-[#00713d] focus:ring-[#00713d]" oninput="document.getElementById('searchForm').submit()" form="searchForm">
+
+                <form id="searchForm" method="GET" action="{{ route('plants.index') }}" class="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <select name="variety" class="rounded-xl border-gray-200 px-3 py-2 text-sm focus:border-[#00713d] focus:ring-[#00713d]">
+                        <option value="">Semua Varietas</option>
+                        <option value="Cabai Rawit Hijau">Cabai Rawit Hijau</option>
+                        <option value="Cabai Rawit Merah">Cabai Rawit Merah</option>
+                        <option value="Cabai Rawit Putih">Cabai Rawit Putih</option>
+                    </select>
+                    <select name="status" class="rounded-xl border-gray-200 px-3 py-2 text-sm focus:border-[#00713d] focus:ring-[#00713d]">
+                        <option value="">Semua Status</option>
+                        <option value="belum_dikerjakan">Belum Dikerjakan</option>
+                        <option value="sedang_dikerjakan">Sedang Dikerjakan</option>
+                        <option value="selesai">Selesai</option>
+                        <option value="tidak_dilakukan">Tidak Dilakukan</option>
+                    </select>
+                    <button type="submit" class="rounded-xl bg-[#00713d] px-4 py-2 text-sm font-bold text-white hover:bg-[#005c32]">Filter</button>
+                </form>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full table-auto text-left text-sm">
+                    <thead class="bg-emerald-50/80 text-xs uppercase text-emerald-900">
+                        <tr>
+                            <th class="px-4 py-3">Nama Tanaman</th>
+                            <th class="px-4 py-3">Varietas</th>
+                            <th class="px-4 py-3">Tanggal Tanam</th>
+                            <th class="px-4 py-3">Lokasi</th>
+                            <th class="px-4 py-3">Status Budidaya</th>
+                            <th class="px-4 py-3">Progress</th>
+                            <th class="px-4 py-3 min-w-[260px]">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse($plants as $plant)
+                            @php
+                                $completed = $plant->activities->where('status', 'selesai')->count();
+                                $total = $plant->activities->count();
+                                $progress = $total > 0 ? round(($completed / $total) * 100) : 0;
+                                $status = $plant->activities->last()?->status ?? 'belum_dikerjakan';
+                            @endphp
+                            <tr class="hover:bg-emerald-50/40">
+                                <td class="px-4 py-4 font-bold text-gray-900">{{ $plant->name }}</td>
+                                <td class="px-4 py-4 text-gray-600">{{ $plant->variety->name ?? '-' }}</td>
+                                <td class="px-4 py-4 text-gray-600">{{ \Carbon\Carbon::parse($plant->start_date)->translatedFormat('d M Y') }}</td>
+                                <td class="px-4 py-4 text-gray-600">{{ $plant->location ?? '-' }}</td>
+                                <td class="px-4 py-4">
+                                    @if($status === 'belum_dikerjakan')
+                                        <span class="px-3 py-1 text-xs font-bold rounded-full bg-amber-100 text-amber-700">Belum</span>
+                                    @elseif($status === 'sedang_dikerjakan')
+                                        <span class="px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-700">Sedang</span>
+                                    @elseif($status === 'selesai')
+                                        <span class="px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700">Selesai</span>
+                                    @else
+                                        <span class="px-3 py-1 text-xs font-bold rounded-full bg-red-100 text-red-700">Tidak</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-4 w-48">
+                                    <div class="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                                        <div class="h-2 rounded-full bg-[#00713d]" style="width: {{ $progress }}%"></div>
+                                    </div>
+                                    <div class="mt-1 text-xs text-gray-500">{{ $progress }}% - {{ $completed }}/{{ $total }}</div>
+                                </td>
+                                <td class="px-4 py-4 min-w-[260px]">
+                                    <div class="flex flex-nowrap items-center gap-2">
+                                        <a href="{{ route('plants.show', $plant) }}" class="inline-flex items-center gap-2 rounded-lg border border-blue-100 bg-white px-3 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-50">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            Detail
+                                        </a>
+                                        <a href="{{ route('plants.edit', $plant) }}" class="inline-flex items-center gap-2 rounded-lg border border-yellow-100 bg-white px-3 py-1.5 text-xs font-bold text-yellow-700 hover:bg-yellow-50">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"/></svg>
+                                            Edit
+                                        </a>
+                                        <button type="button" onclick="if(confirm('Yakin ingin menghapus tanaman \"{{ addslashes($plant->name) }}\"?')){ document.getElementById('delete-form-{{ $plant->id }}').submit(); }" class="inline-flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-100">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            Hapus
+                                        </button>
+
+                                        <form id="delete-form-{{ $plant->id }}" action="{{ route('plants.destroy', $plant) }}" method="POST" class="hidden">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="px-4 py-12 text-center text-gray-500">
+                                    <p class="font-bold text-gray-700">Belum ada tanaman.</p>
+                                    <a href="{{ route('plants.create') }}" class="mt-2 inline-flex font-bold text-[#00713d] hover:underline">Tambah tanaman pertama</a>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </x-app-layout>

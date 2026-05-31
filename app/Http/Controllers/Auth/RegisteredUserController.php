@@ -34,18 +34,29 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['nullable', 'in:owner,penyuluh'], // workers cannot self-register
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->input('role', 'owner'),
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect($this->redirectToRoleDashboard($user));
+    }
+
+    private function redirectToRoleDashboard(User $user): string
+    {
+        return match ($user->role) {
+            'owner' => route('owner.dashboard', absolute: false),
+            'penyuluh' => route('penyuluh.dashboard', absolute: false),
+            default => route('dashboard', absolute: false),
+        };
     }
 }
