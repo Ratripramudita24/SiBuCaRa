@@ -42,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware([\App\Http\Middleware\OwnerMiddleware::class])->group(function () {
         Route::get('jadwal', [\App\Http\Controllers\PlantController::class, 'schedules'])->name('schedules.index');
         Route::get('jadwal/cetak', [\App\Http\Controllers\PlantController::class, 'printSchedules'])->name('schedules.print');
+        Route::patch('activities/{activity}/assign-worker', [PlantActivityController::class, 'assignWorker'])->name('activities.assignWorker');
         Route::resource('plants', PlantController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
         Route::resource('workers', WorkerController::class)->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
         Route::patch('/workers/{worker}/reset-password', [WorkerController::class, 'resetPassword'])->name('workers.resetPassword');

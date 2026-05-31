@@ -1,5 +1,16 @@
-<aside class="w-64 min-h-screen bg-[#0b1826] text-gray-300 flex flex-col justify-between p-4 shrink-0 shadow-2xl shadow-slate-950/20">
-    @php $role = Auth::user()->role ?? 'owner'; @endphp
+<aside class="w-64 h-screen bg-[#0b1826] text-gray-300 flex flex-col justify-between p-4 shrink-0 shadow-2xl shadow-slate-950/20">
+    @php
+        $role = Auth::user()->role ?? 'owner';
+        $activeClass = 'bg-slate-700 text-white ring-1 ring-white/10 border-l-4 border-emerald-500';
+        $inactiveClass = 'hover:bg-white/[0.06] hover:text-white';
+
+        $isDashboardActive = request()->routeIs('owner.dashboard', 'dashboard');
+        $isPlantsActive = request()->routeIs('owner.plants.*', 'plants.index', 'plants.create', 'plants.show', 'plants.edit');
+        $isSchedulesActive = request()->routeIs('owner.schedules.*', 'schedules.*');
+        $isWorkersActive = request()->routeIs('owner.workers.*', 'workers.*');
+        $isCalendarActive = request()->routeIs('owner.calendar.*', 'plants.calendar');
+        $isReportsActive = request()->routeIs('owner.reports.*', 'plants.report');
+    @endphp
 
     <div>
         <div class="mb-8 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4">
@@ -8,34 +19,34 @@
         </div>
 
         <div class="space-y-2">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition {{ request()->routeIs('dashboard') ? 'bg-white/10 text-white ring-1 ring-white/10 border-l-4 border-[#2ec4b6]' : 'hover:bg-white/[0.06] hover:text-white' }}">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition {{ $isDashboardActive ? $activeClass : $inactiveClass }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18v4H3V3zm0 7h18v11H3V10z"/></svg>
                 Dashboard
             </a>
 
             @if($role === 'owner')
-                <a href="{{ route('plants.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition {{ request()->routeIs('plants.*') ? 'bg-white/10 text-white ring-1 ring-white/10 border-l-4 border-[#2ec4b6]' : 'hover:bg-white/[0.06] hover:text-white' }}">
+                <a href="{{ route('plants.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition {{ $isPlantsActive ? $activeClass : $inactiveClass }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 6 2-7L2 9h7l3-7z"/></svg>
                     Tanaman
                 </a>
 
-                <a href="{{ route('schedules.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition {{ request()->routeIs('schedules.*') ? 'bg-white/10 text-white ring-1 ring-white/10 border-l-4 border-[#2ec4b6]' : 'hover:bg-white/[0.06] hover:text-white' }}">
+                <a href="{{ route('schedules.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition {{ $isSchedulesActive ? $activeClass : $inactiveClass }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V8H3v11a2 2 0 002 2z"/></svg>
                     Jadwal Budidaya
                 </a>
 
-                <a href="{{ route('workers.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition {{ request()->routeIs('workers.*') ? 'bg-white/10 text-white ring-1 ring-white/10 border-l-4 border-[#2ec4b6]' : 'hover:bg-white/[0.06] hover:text-white' }}">
+                <a href="{{ route('workers.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition {{ $isWorkersActive ? $activeClass : $inactiveClass }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m8-4a4 4 0 10-8 0 4 4 0 008 0z"/></svg>
                     Worker
                 </a>
             @endif
 
-            <a href="{{ route('plants.calendar') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition {{ request()->routeIs('plants.calendar') ? 'bg-white/10 text-white ring-1 ring-white/10 border-l-4 border-[#2ec4b6]' : 'hover:bg-white/[0.06] hover:text-white' }}">
+            <a href="{{ route('plants.calendar') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition {{ $isCalendarActive ? $activeClass : $inactiveClass }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V8H3v11a2 2 0 002 2z"/></svg>
                 Kalender
             </a>
 
-            <a href="{{ route('plants.report') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition {{ request()->routeIs('plants.report') ? 'bg-white/10 text-white ring-1 ring-white/10 border-l-4 border-[#2ec4b6]' : 'hover:bg-white/[0.06] hover:text-white' }}">
+            <a href="{{ route('plants.report') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition {{ $isReportsActive ? $activeClass : $inactiveClass }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6M5 21h14a2 2 0 002-2V7l-5-5H5a2 2 0 00-2 2v15a2 2 0 002 2z"/></svg>
                 Laporan
             </a>

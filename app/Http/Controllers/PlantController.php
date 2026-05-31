@@ -287,7 +287,11 @@ class PlantController extends Controller
             ->orderBy('planned_date')
             ->get();
 
-        return view('schedules.index', compact('activities'));
+        $workers = auth()->user()->workers()
+            ->orderBy('name')
+            ->get();
+
+        return view('schedules.index', compact('activities', 'workers'));
     }
 
     public function printSchedules(Request $request)

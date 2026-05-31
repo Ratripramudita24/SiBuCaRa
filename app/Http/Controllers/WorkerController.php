@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\PlantActivity;
 
 class WorkerController extends Controller
 {
@@ -63,10 +62,6 @@ class WorkerController extends Controller
             'role' => 'worker',
             'created_by' => auth()->id(),
         ]);
-
-        PlantActivity::whereNull('assigned_user_id')
-            ->whereHas('plant', fn ($query) => $query->where('owner_id', auth()->id()))
-            ->update(['assigned_user_id' => $worker->id]);
 
         return redirect()->route('workers.index')->with('success', 'Akun worker berhasil dibuat!');
     }

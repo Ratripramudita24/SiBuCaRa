@@ -21,27 +21,15 @@ class PlantService
 
     private function generateActivities($plant)
     {
-        // Get the first worker from the same owner (for activity assignment)
-        $owner = $plant->owner;
-        $worker = $owner->workers()->first();
-
         $order = 0;
 
         foreach ($this->scheduleSteps() as $step) {
             $date = Carbon::parse($plant->start_date)
                 ->addDays($step['day']);
 
-            // Tentukan assigned user berdasarkan role
-            $assignedUserId = null;
-            if ($step['role'] === 'owner') {
-                $assignedUserId = $plant->owner_id;
-            } elseif ($step['role'] === 'worker' && $worker) {
-                $assignedUserId = $worker->id;
-            }
-
             $activity = PlantActivity::create([
                 'plant_id' => $plant->id,
-                'assigned_user_id' => $assignedUserId,
+                'assigned_user_id' => null,
                 'title' => $step['title'],
                 'description' => $step['desc'],
                 'planned_date' => $date,
@@ -49,18 +37,6 @@ class PlantService
                 'order_index' => $order++,
                 'system_notes' => $step['system_notes']
             ]);
-
-            // Buat notifikasi untuk worker dan penyuluh
-            if ($worker) {
-                Notification::create([
-                    'plant_activity_id' => $activity->id,
-                    'channel' => 'whatsapp',
-                    'message' => $step['title'] . ' harus dilakukan pada ' . $date->format('d/m/Y'),
-                    'scheduled_at' => $date,
-                    'recipient_role' => 'worker',
-                    'recipient_user_id' => $worker->id,
-                ]);
-            }
 
             // Notifikasi ke owner untuk monitoring
             Notification::create([

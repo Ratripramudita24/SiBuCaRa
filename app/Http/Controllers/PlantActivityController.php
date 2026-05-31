@@ -4,9 +4,50 @@ namespace App\Http\Controllers;
 
 use App\Models\PlantActivity;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PlantActivityController extends Controller
 {
+    /**
+     * Assign or move an activity to one of the owner's workers.
+     */
+    public function assignWorker(Request $request, PlantActivity $activity)
+    {
+        $user = auth()->user();
+        $activity->load('plant');
+
+        if ($user->role !== 'owner' || $activity->plant->owner_id !== $user->id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'assigned_user_id' => [
+                'nullable',
+                Rule::exists('users', 'id')->where(function ($query) use ($user) {
+                    $query
+                        ->where('role', 'worker')
+                        ->where('created_by', $user->id);
+                }),
+            ],
+        ]);
+
+        $activity->update([
+            'assigned_user_id' => $validated['assigned_user_id'] ?? null,
+        ]);
+
+        $activity->load('assignedUser');
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Penugasan worker berhasil diperbarui.',
+                'assigned_user_id' => $activity->assigned_user_id,
+                'assigned_user_name' => $activity->assignedUser?->name,
+            ]);
+        }
+
+        return back()->with('success', 'Penugasan worker berhasil diperbarui!');
+    }
+
     /**
      * Show activity details (untuk worker/owner)
      */

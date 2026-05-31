@@ -6,6 +6,7 @@
             $total = $activities->count();
             $done = $activities->where('status', 'selesai')->count();
             $waiting = $activities->whereIn('status', ['belum_dikerjakan', 'sedang_dikerjakan'])->count();
+            $assigned = $activities->whereNotNull('assigned_user_id')->count();
         @endphp
 
         <div class="rounded-2xl border border-emerald-100 bg-white/85 p-6 shadow-sm">
@@ -19,10 +20,14 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
                 <p class="text-xs font-black uppercase tracking-wide text-gray-500">Total Jadwal</p>
                 <p class="mt-3 text-3xl font-black text-gray-900">{{ $total }}</p>
+            </div>
+            <div class="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
+                <p class="text-xs font-black uppercase tracking-wide text-blue-700">Sudah Ditugaskan</p>
+                <p class="mt-3 text-3xl font-black text-blue-700">{{ $assigned }}</p>
             </div>
             <div class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
                 <p class="text-xs font-black uppercase tracking-wide text-emerald-700">Selesai</p>
@@ -35,6 +40,12 @@
         </div>
 
         <div class="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
+            @error('assigned_user_id')
+                <div class="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                    {{ $message }}
+                </div>
+            @enderror
+
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-5">
                 <form method="GET" action="{{ route('schedules.index') }}" class="flex flex-col sm:flex-row sm:items-center gap-2">
                     <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama tanaman atau aktivitas" class="w-full sm:w-72 rounded-xl border-gray-200 px-3 py-2 text-sm focus:border-[#00713d] focus:ring-[#00713d]">
@@ -57,7 +68,7 @@
                             <th class="px-4 py-3">Tanggal</th>
                             <th class="px-4 py-3">Tanaman</th>
                             <th class="px-4 py-3">Aktivitas</th>
-                            <th class="px-4 py-3">Assigned</th>
+                            <th class="px-4 py-3">Worker</th>
                             <th class="px-4 py-3">Status</th>
                             <th class="px-4 py-3">Keterangan</th>
                         </tr>
@@ -71,7 +82,33 @@
                                     <a href="{{ route('activities.show', $act) }}" class="font-bold text-[#00713d] hover:underline">{{ $act->title }}</a>
                                     <p class="mt-1 text-xs text-gray-500">{{ $act->plant->variety->name ?? 'Varietas cabai rawit' }}</p>
                                 </td>
-                                <td class="px-4 py-4">{{ $act->assignedUser?->name ?? '-' }}</td>
+                                <td class="px-4 py-4">
+                                    @if($workers->isNotEmpty())
+                                        <form method="POST" action="{{ route('activities.assignWorker', $act) }}" data-worker-assignment-form>
+                                            @csrf
+                                            @method('PATCH')
+                                            <label for="assigned_user_id_{{ $act->id }}" class="sr-only">Worker penanggung jawab</label>
+                                            <select
+                                                id="assigned_user_id_{{ $act->id }}"
+                                                name="assigned_user_id"
+                                                data-worker-assignment-select
+                                                class="w-44 rounded-xl border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 focus:border-[#00713d] focus:ring-[#00713d]"
+                                            >
+                                                <option value="">Belum ditugaskan</option>
+                                                @foreach($workers as $worker)
+                                                    <option value="{{ $worker->id }}" @selected($act->assigned_user_id === $worker->id)>
+                                                        {{ $worker->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <p class="mt-1 text-[11px] font-semibold text-gray-400" data-worker-assignment-status>
+                                                {{ $act->assignedUser?->name ? 'Tersimpan' : 'Menunggu penugasan' }}
+                                            </p>
+                                        </form>
+                                    @else
+                                        <a href="{{ route('workers.create') }}" class="text-xs font-bold text-[#00713d] hover:underline">Tambah worker</a>
+                                    @endif
+                                </td>
                                 <td class="px-4 py-4">
                                     @if($act->status === 'belum_dikerjakan')
                                         <span class="px-3 py-1 text-xs font-bold rounded-full bg-amber-100 text-amber-700">Belum</span>
