@@ -12,11 +12,15 @@ return new class extends Migration {
     {
         Schema::create('plants', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('owner_id')->constrained('users')->onDelete('cascade');
             $table->string('name');
-            $table->string('variety')->default('Cabai Rawit');
-            $table->date('plant_date');
-            $table->enum('status', ['active', 'harvested'])->default('active');
+            $table->date('start_date');
+
+            // lokasi (untuk cuaca)
+            $table->string('location')->nullable();
+
+            $table->date('harvest_date')->nullable();
+            $table->enum('status', ['active', 'finished'])->default('active');
+
             $table->timestamps();
         });
     }

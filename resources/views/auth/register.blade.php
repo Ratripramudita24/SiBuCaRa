@@ -100,8 +100,8 @@
             <x-input-error :messages="$errors->get('password')" class="mt-1" />
         </div>
 
-        {{-- Password Konfirmasi --}}
-        <div class="mb-4">
+        {{-- Konfirmasi Password --}}
+        <div class="mb-6">
             <x-input-label for="password_confirmation" :value="__('Konfirmasi Kata Sandi')"
                 class="text-gray-700 dark:text-gray-300 font-medium mb-1 block text-sm" />
 
@@ -120,22 +120,6 @@
             </div>
 
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1" />
-        </div>
-
-        {{-- Role --}}
-        <div class="mb-6">
-            <x-input-label for="role" :value="__('Tipe Akun')"
-                class="text-gray-700 dark:text-gray-300 font-medium mb-1 block text-sm" />
-
-            <select id="role" name="role"
-                class="block w-full px-3 py-2 bg-emerald-50/20 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#00713d] focus:border-[#00713d]"
-                required>
-                <option value="">Pilih Tipe Akun</option>
-                <option value="owner">Pemilik Kebun</option>
-                <option value="penyuluh">Penyuluh</option>
-            </select>
-
-            <x-input-error :messages="$errors->get('role')" class="mt-1" />
         </div>
 
         {{-- Button --}}
