@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'role', 'created_by'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -28,5 +28,37 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the user who created this worker account
+     */
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Get the workers created by this owner
+     */
+    public function workers()
+    {
+        return $this->hasMany(User::class, 'created_by');
+    }
+
+    /**
+     * Get plants owned by this user
+     */
+    public function plants()
+    {
+        return $this->hasMany(Plant::class, 'owner_id');
+    }
+
+    /**
+     * Get plant activities assigned to this user
+     */
+    public function assignedActivities()
+    {
+        return $this->hasMany(PlantActivity::class, 'assigned_user_id');
     }
 }

@@ -12,6 +12,23 @@ class Notification extends Model
         'message',
         'scheduled_at',
         'sent_at',
-        'status'
+        'status',
+        'recipient_role',
+        'recipient_user_id'
     ];
+
+    protected $casts = [
+        'scheduled_at' => 'datetime',
+        'sent_at' => 'datetime',
+    ];
+
+    public function activity()
+    {
+        return $this->belongsTo(PlantActivity::class, 'plant_activity_id');
+    }
+
+    public function recipient()
+    {
+        return $this->belongsTo(User::class, 'recipient_user_id');
+    }
 }

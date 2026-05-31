@@ -1,32 +1,63 @@
 <x-app-layout>
-    <div class="py-6 px-8 space-y-6">
-        <h2 class="text-2xl font-bold text-[#0d1b2a]">Kalender & Timeline Produksi</h2>
-        <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-8">
-            @forelse($activities->groupBy(function($item) { return \Carbon\Carbon::parse($item->planned_date)->translatedFormat('F Y'); }) as $bulan => $daftarTugas)
+    <div class="py-8 px-8 space-y-6">
+        @php
+            $total = $activities->count();
+            $done = $activities->where('status', 'selesai')->count();
+            $nextActivity = $activities->first();
+        @endphp
+
+        <div class="rounded-2xl border border-emerald-100 bg-white/85 p-6 shadow-sm">
+            <p class="text-xs font-black uppercase tracking-[0.2em] text-[#00713d]">Timeline</p>
+            <h2 class="mt-2 text-3xl font-black text-[#0d1b2a]">Kalender Budidaya</h2>
+            <p class="mt-1 text-sm text-gray-500">Timeline aktivitas yang dibuat otomatis dari tanggal tanam.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
+                <p class="text-xs font-black uppercase tracking-wide text-gray-500">Total Agenda</p>
+                <p class="mt-3 text-3xl font-black text-gray-900">{{ $total }}</p>
+            </div>
+            <div class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
+                <p class="text-xs font-black uppercase tracking-wide text-emerald-700">Selesai</p>
+                <p class="mt-3 text-3xl font-black text-emerald-700">{{ $done }}</p>
+            </div>
+            <div class="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm">
+                <p class="text-xs font-black uppercase tracking-wide text-gray-500">Agenda Terdekat</p>
+                <p class="mt-3 text-lg font-black text-gray-900">{{ $nextActivity ? \Carbon\Carbon::parse($nextActivity->planned_date)->translatedFormat('d M Y') : '-' }}</p>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm space-y-8">
+            @forelse($activities->groupBy(fn ($item) => \Carbon\Carbon::parse($item->planned_date)->translatedFormat('F Y')) as $month => $tasks)
                 <div>
-                    <h3 class="text-sm font-bold text-gray-800 border-b pb-2 mb-4">{{ $bulan }}</h3>
-                    <div class="relative border-l-2 border-gray-100 ml-3 space-y-6">
-                        @foreach($daftarTugas as $task)
+                    <h3 class="mb-4 border-b border-emerald-100 pb-3 text-sm font-black text-emerald-950">{{ $month }}</h3>
+                    <div class="relative ml-3 space-y-5 border-l-2 border-emerald-100">
+                        @foreach($tasks as $task)
                             <div class="relative pl-6">
-                                <div class="absolute -left-[7px] top-1.5 w-3 h-3 rounded-full {{ $task->is_done ? 'bg-emerald-600' : 'bg-gray-300' }} border-2 border-white shadow-sm"></div>
-                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                    <div>
-                                        <span class="text-[10px] uppercase font-bold text-gray-400 block">{{ $task->plant->name }}</span>
-                                        <h4 class="text-sm font-bold text-gray-900 {{ $task->is_done ? 'line-through text-gray-400' : '' }}">{{ $task->title }}</h4>
-                                        <p class="text-xs text-gray-500">{{ $task->description }}</p>
+                                <div class="absolute -left-[7px] top-4 h-3 w-3 rounded-full {{ $task->status === 'selesai' ? 'bg-emerald-600' : ($task->status === 'tidak_dilakukan' ? 'bg-red-500' : ($task->status === 'sedang_dikerjakan' ? 'bg-blue-500' : 'bg-amber-400')) }} border-2 border-white shadow-sm"></div>
+                                <a href="{{ route('activities.show', $task) }}" class="block rounded-2xl border border-gray-100 bg-gray-50 p-4 hover:bg-emerald-50">
+                                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                                        <div>
+                                            <span class="block text-[10px] font-black uppercase tracking-wide text-gray-400">{{ $task->plant->name }}</span>
+                                            <h4 class="mt-1 text-sm font-black text-gray-900">{{ $task->title }}</h4>
+                                            <p class="mt-1 text-xs text-gray-500">{{ $task->description }}</p>
+                                        </div>
+                                        <div class="flex flex-wrap md:justify-end gap-2">
+                                            <span class="block rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-bold text-gray-600">
+                                                {{ \Carbon\Carbon::parse($task->planned_date)->translatedFormat('d M Y') }}
+                                            </span>
+                                            <span class="block rounded-lg border border-gray-200 bg-white px-3 py-1 text-xs font-bold text-gray-600">
+                                                {{ str_replace('_', ' ', $task->status) }}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="text-xs font-semibold text-gray-600 bg-white px-3 py-1 rounded-md border border-gray-200 block">
-                                            📅 {{ \Carbon\Carbon::parse($task->planned_date)->translatedFormat('d M Y') }}
-                                        </span>
-                                    </div>
-                                </div>
+                                </a>
                             </div>
                         @endforeach
                     </div>
                 </div>
             @empty
-                <div class="text-center py-12 text-sm text-gray-400">Belum ada agenda jadwal budidaya.</div>
+                <div class="py-12 text-center text-sm text-gray-400">Belum ada agenda jadwal budidaya.</div>
             @endforelse
         </div>
     </div>

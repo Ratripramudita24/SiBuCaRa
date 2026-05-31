@@ -122,6 +122,26 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1" />
         </div>
 
+        {{-- Role selection (Owner / Penyuluh) --}}
+        <div class="mb-4">
+            <x-input-label for="role" :value="__('Daftar Sebagai')"
+                class="text-gray-700 dark:text-gray-300 font-medium text-sm mb-1 block" />
+
+            <div class="flex items-center gap-4 mt-1">
+                <label class="inline-flex items-center">
+                    <input type="radio" name="role" value="owner" checked class="form-radio text-[#00713d]" />
+                    <span class="ml-2 text-sm text-gray-700">Pemilik Kebun (Owner)</span>
+                </label>
+
+                <label class="inline-flex items-center">
+                    <input type="radio" name="role" value="penyuluh" class="form-radio text-[#00713d]" />
+                    <span class="ml-2 text-sm text-gray-700">Penyuluh</span>
+                </label>
+            </div>
+
+            <x-input-error :messages="$errors->get('role')" class="mt-1" />
+        </div>
+
         {{-- Button --}}
         <div>
             <button type="submit"
