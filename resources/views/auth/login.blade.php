@@ -24,7 +24,7 @@
         @csrf
 
         <div class="mb-4">
-            <x-input-label Akses for="email" :value="__('Alamat Email')"
+            <x-input-label for="email" :value="__('Alamat Email')"
                 class="text-gray-700 font-medium mb-1 block text-sm" />
             <div class="relative mt-1">
                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-gray-400">

@@ -7,11 +7,30 @@ use Illuminate\Database\Eloquent\Model;
 class Plant extends Model
 {
     protected $fillable = [
-        'name','start_date','location','harvest_date','status'
+        'owner_id',
+        'name',
+        'variety',
+        'plant_date',
+        'status',
     ];
 
-    public function activities()
+    protected $casts = [
+        'plant_date' => 'date',
+    ];
+
+    public function owner()
     {
-        return $this->hasMany(PlantActivity::class);
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class);
+    }
+
+    public function recommendations()
+    {
+        return $this->hasMany(Recommendation::class);
     }
 }
+

@@ -1,49 +1,51 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PlantController;
-use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\RecommendationController;
+use App\Http\Controllers\WorkerController;
+use App\Http\Controllers\ProfileController;
 
-/*
-|--------------------------------------------------------------------------
-| Public Route
-|--------------------------------------------------------------------------
-*/
-// 1. Ini sudah diperbaiki kembali ke bawaan asli Laravel Breeze
 Route::get('/', function () {
     return view('welcome');
+})->name('home');
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
 });
 
-/*
-|--------------------------------------------------------------------------
-| Authenticated & Verified Routes (Sistem SiBuCaRa)
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-    // 1. Beranda (Dashboard Utama - Menampilkan tugas hari ini)
-    Route::get('/dashboard', [PlantController::class, 'index'])->name('dashboard');
+Route::middleware(['auth', 'owner'])->prefix('owner')->group(function () {
+    Route::get('/dashboard', [PlantController::class, 'ownerDashboard'])->name('owner.dashboard');
+    Route::post('/plants', [PlantController::class, 'store'])->name('plants.store');
+    Route::get('/plants/{plant}', [PlantController::class, 'show'])->name('plants.show');
+    Route::delete('/plants/{plant}', [PlantController::class, 'destroy'])->name('plants.destroy');
 
-    // 2. CRUD Tanaman (Menggunakan Resource)
-    Route::resource('plants', PlantController::class)->only(['index', 'store', 'destroy']);
+    Route::post('/workers', [WorkerController::class, 'storeWorker'])->name('workers.store');
+    Route::delete('/workers/{worker}', [WorkerController::class, 'destroy'])->name('workers.destroy');
+});
 
-    // 3. Navigasi Tambahan (Non-CRUD Tanaman)
-    Route::get('/kalender', [PlantController::class, 'calendarView'])->name('plants.calendar');
-    Route::get('/laporan', [PlantController::class, 'report'])->name('plants.report');
+Route::middleware(['auth', 'worker'])->prefix('worker')->group(function () {
+    Route::get('/dashboard', [ScheduleController::class, 'workerDashboard'])->name('worker.dashboard');
+    Route::patch('/schedules/{schedule}', [ScheduleController::class, 'updateStatus'])->name('schedules.update');
+});
 
-    // 4. Fitur Ceklis & Batal Ceklis Aktivitas
-    Route::patch('/activity/{id}/done', [ActivityController::class, 'done'])->name('activity.done');
-    Route::patch('/activity/{id}/undo', [ActivityController::class, 'undo'])->name('activity.undo');
+Route::middleware(['auth', 'penyuluh'])->prefix('penyuluh')->group(function () {
+    Route::get('/dashboard', [RecommendationController::class, 'penyuluhDashboard'])->name('penyuluh.dashboard');
+    Route::post('/recommendations/{plant}', [RecommendationController::class, 'store'])->name('recommendations.store');
+});
 
-    /*
-    |--------------------------------------------------------------------------
-    | Profile Bawaan Laravel Breeze
-    |--------------------------------------------------------------------------
-    */
+Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__.'/auth.php';
+
