@@ -99,12 +99,20 @@ class PlantActivityController extends Controller
             $activity->is_done = false;
 
             if ($validated['status'] === 'tidak_dilakukan') {
-                $activity->notes = $validated['notes'] ?? 'Tidak dilakukan';
+                $activity->notes = $this->appendActivityNote(
+                    $activity->notes,
+                    'Alasan tidak dilakukan',
+                    $validated['notes'] ?? 'Tidak dilakukan',
+                );
             }
         }
 
-        if (!empty($validated['notes'])) {
-            $activity->notes = $validated['notes'];
+        if (! empty($validated['notes']) && $validated['status'] !== 'tidak_dilakukan') {
+            $activity->notes = $this->appendActivityNote(
+                $activity->notes,
+                'Catatan pelaksanaan',
+                $validated['notes'],
+            );
         }
 
         $activity->save();
@@ -137,8 +145,12 @@ class PlantActivityController extends Controller
         $activity->done_at = now();
         $activity->is_done = true;
         
-        if (!empty($validated['notes'])) {
-            $activity->notes = $validated['notes'];
+        if (! empty($validated['notes'])) {
+            $activity->notes = $this->appendActivityNote(
+                $activity->notes,
+                'Catatan pelaksanaan',
+                $validated['notes'],
+            );
         }
 
         $activity->save();
@@ -168,9 +180,24 @@ class PlantActivityController extends Controller
         ]);
 
         $activity->status = 'tidak_dilakukan';
-        $activity->notes = $validated['notes'];
+        $activity->notes = $this->appendActivityNote(
+            $activity->notes,
+            'Alasan tidak dilakukan',
+            $validated['notes'],
+        );
         $activity->save();
 
         return back()->with('success', 'Aktivitas ditandai tidak dilakukan dengan alasan yang dicatat!');
+    }
+
+    private function appendActivityNote(?string $currentNotes, string $label, string $newNote): string
+    {
+        $entry = $label . ': ' . $newNote;
+
+        if (blank($currentNotes)) {
+            return $entry;
+        }
+
+        return $currentNotes . "\n\n" . $entry;
     }
 }

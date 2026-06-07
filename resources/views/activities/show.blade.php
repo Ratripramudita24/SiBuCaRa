@@ -62,8 +62,8 @@
 
                     @if($activity->notes)
                         <div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                            <p class="text-xs font-semibold uppercase text-gray-600">Catatan Worker</p>
-                            <p class="mt-2 text-sm text-gray-700">{{ $activity->notes }}</p>
+                            <p class="text-xs font-semibold uppercase text-gray-600">Catatan Jadwal</p>
+                            <p class="mt-2 whitespace-pre-line text-sm text-gray-700">{{ $activity->notes }}</p>
                         </div>
                     @endif
                 </div>

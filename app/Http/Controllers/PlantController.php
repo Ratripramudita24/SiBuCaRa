@@ -43,6 +43,9 @@ class PlantController extends Controller
     private function ownerDashboard()
     {
         $user = auth()->user();
+
+        $this->plantService->syncDailyActivitiesForOwner($user->id);
+
         $plants = $user->plants()
             ->with(['activities' => fn ($query) => $query->orderBy('planned_date'), 'variety'])
             ->latest()
@@ -162,6 +165,8 @@ class PlantController extends Controller
     {
         $this->authorizeOwner();
 
+        $this->plantService->syncDailyActivitiesForOwner(auth()->id());
+
         $plants = auth()->user()->plants()
             ->with(['variety', 'activities' => fn ($query) => $query->orderBy('planned_date')])
             ->latest()
@@ -217,6 +222,11 @@ class PlantController extends Controller
 
         if (auth()->user()->role === 'worker' && ! $plant->activities->contains('assigned_user_id', auth()->id())) {
             abort(403);
+        }
+
+        if (auth()->user()->role === 'owner') {
+            $this->plantService->syncDailyActivities($plant);
+            $plant->load('activities.assignedUser', 'variety', 'owner');
         }
 
         return view('plants.show', compact('plant'));
@@ -283,6 +293,8 @@ class PlantController extends Controller
     {
         $this->authorizeOwner();
 
+        $this->plantService->syncDailyActivitiesForOwner(auth()->id());
+
         $activities = $this->ownerScheduleQuery($request)
             ->orderBy('planned_date')
             ->get();
@@ -298,6 +310,8 @@ class PlantController extends Controller
     {
         $this->authorizeOwner();
 
+        $this->plantService->syncDailyActivitiesForOwner(auth()->id());
+
         $activities = $this->ownerScheduleQuery($request)
             ->orderBy('planned_date')
             ->get();
@@ -310,6 +324,10 @@ class PlantController extends Controller
      */
     public function calendarView()
     {
+        if (auth()->user()->role === 'owner') {
+            $this->plantService->syncDailyActivitiesForOwner(auth()->id());
+        }
+
         $activities = $this->visibleActivities()
             ->with('plant.variety')
             ->orderBy('planned_date', 'asc')
@@ -323,6 +341,10 @@ class PlantController extends Controller
      */
     public function report()
     {
+        if (auth()->user()->role === 'owner') {
+            $this->plantService->syncDailyActivitiesForOwner(auth()->id());
+        }
+
         $activitiesQuery = $this->visibleActivities();
 
         $historyActivities = (clone $activitiesQuery)

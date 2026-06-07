@@ -111,14 +111,13 @@
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"/></svg>
                                             Edit
                                         </a>
-                                        <button type="button" onclick="if(confirm('Yakin ingin menghapus tanaman \"{{ addslashes($plant->name) }}\"?')){ document.getElementById('delete-form-{{ $plant->id }}').submit(); }" class="inline-flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-100">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            Hapus
-                                        </button>
-
-                                        <form id="delete-form-{{ $plant->id }}" action="{{ route('plants.destroy', $plant) }}" method="POST" class="hidden">
+                                        <form action="{{ route('plants.destroy', $plant) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus tanaman ini?');">
                                             @csrf
                                             @method('DELETE')
+                                            <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 px-3 py-1.5 text-xs font-bold text-red-700 hover:bg-red-100">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                Hapus
+                                            </button>
                                         </form>
                                     </div>
                                 </td>
